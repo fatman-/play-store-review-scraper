@@ -15,7 +15,6 @@ const sortReviews = async (page, sortBy) => {
 	}
 };
 
-let noOfReviews = 0;
 const autoScrollTillShowMore = async (page, afterScrollWaitFor = 2000) => {
 	const scrollHeightBeforeScroll = await page.evaluate(() => document.body.scrollHeight);
 	await page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
@@ -58,7 +57,7 @@ const autoScrollTillShowMore = async (page, afterScrollWaitFor = 2000) => {
 	const noOfReviewsCount = await noOfReviewsObj.jsonValue();
 	noOfReviews += noOfReviewsCount;
 	console.log({ noOfReviewsSoFar: noOfReviews });
-	console.timeLog(`scrapePlayStoreAppReviews on "${APP_NAME}"`);
+	console.timeLog(`scrapePlayStoreAppReviews on "${APP_ID}"`);
 
 	await page.evaluate(async el => {
 		// TODO: Should any reviews be collapsed, uncollapse them before scraping the reviews' block HTML
@@ -78,10 +77,9 @@ const autoScrollTillEnd = async page => {
 	if (showMoreButton) {
 		console.log("Show more button has been clicked");
 		await showMoreButton.click();
-		await autoScrollTillEnd(page);
+		return autoScrollTillEnd(page);
 	}
-	console.log('No "Show More" button...');
-	return;
+	return console.log('No "Show More" button...');
 };
 
 const scrapePlayStoreAppReviews = async (appID, showAllReviews = true, sortBy = 'NEWEST') => {
@@ -90,7 +88,7 @@ const scrapePlayStoreAppReviews = async (appID, showAllReviews = true, sortBy = 
 	await page.setViewport({ width: 1200, height: 1080 });
 	try {
 		if (!appID) {
-			throw "appID attribute is required"
+			throw 'An application ID — for instance, "com.turbo.stars" — is required';
 		}
 		const appURL = `https://play.google.com/store/apps/details?id=${appID}&showAllReviews=${showAllReviews}`
 
@@ -101,7 +99,7 @@ const scrapePlayStoreAppReviews = async (appID, showAllReviews = true, sortBy = 
 
 		await autoScrollTillEnd(page);
 
-		console.timeEnd(`scrapePlayStoreAppReviews on "${APP_NAME}"`);
+		console.timeEnd(`scrapePlayStoreAppReviews on "${APP_ID}"`);
 		console.log("Timer ended!");
 
 		// return browser.close();
@@ -112,6 +110,7 @@ const scrapePlayStoreAppReviews = async (appID, showAllReviews = true, sortBy = 
 	
 };
 
-const APP_NAME = 'com.turbo.stars';
-console.time(`scrapePlayStoreAppReviews on "${APP_NAME}"`);
-scrapePlayStoreAppReviews(APP_NAME);
+const APP_ID = 'com.turbo.stars';
+console.time(`scrapePlayStoreAppReviews on "${APP_ID}"`);
+let noOfReviews = 0;
+scrapePlayStoreAppReviews(APP_ID);
